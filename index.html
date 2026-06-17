@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; }
         .glass {
@@ -44,10 +44,10 @@
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    <button id="btn-start" class="w-full py-5 bg-white text-rose-600 font-extrabold text-xl rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all cursor-pointer uppercase tracking-widest">
+                    <button id="btn-start" onclick="toggleTimer()" class="w-full py-5 bg-white text-rose-600 font-extrabold text-xl rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all cursor-pointer uppercase tracking-widest">
                         Start Session
                     </button>
-                    <button id="btn-reset" class="text-white/60 hover:text-white font-medium text-sm transition-all cursor-pointer">
+                    <button id="btn-reset" onclick="resetTimer()" class="text-white/60 hover:text-white font-medium text-sm transition-all cursor-pointer">
                         Reset Timer
                     </button>
                 </div>
@@ -116,7 +116,7 @@
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="selectAmbient('none')" id="ambient-none" class="py-2.5 bg-white text-rose-600 text-xs font-bold rounded-xl border border-white/20 transition-all shadow-md">
                             🔇 Silent
-                    </button>
+                        </button>
                         <button onclick="selectAmbient('rain')" id="ambient-rain" class="py-2.5 bg-black/20 text-white text-xs font-bold rounded-xl border border-white/10 hover:bg-black/40 transition-all">
                             🌧️ Cozy Rain
                         </button>
@@ -142,7 +142,7 @@
     </div>
 
     <audio id="alert-sound" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto"></audio>
-    <audio id="audio-rain" src="hujan.mp3" loop preload="auto"></audio>
+    <audio id="audio-rain" src="https://assets.mixkit.co/active_storage/sfx/2433/2433-84.wav" loop preload="auto"></audio>
 
     <script>
         // TIMER STATE
@@ -170,7 +170,6 @@
         const modeText = document.getElementById('mode-text');
         const bodyBg = document.getElementById('body-bg');
         const startBtn = document.getElementById('btn-start');
-        const resetBtn = document.getElementById('btn-reset');
         const timerContainer = document.getElementById('timer-container');
 
         function updateDisplay() {
@@ -204,23 +203,27 @@
         function updateActiveButtonStyles(activeColor) {
             ['pomodoro', 'short', 'long'].forEach(m => {
                 const btn = document.getElementById(`btn-${m}`);
-                if (m === currentMode) {
-                    btn.className = "py-2.5 rounded-xl text-xs font-bold transition-all bg-white shadow-lg text-center truncate";
-                    btn.style.color = activeColor;
-                } else {
-                    btn.className = "py-2.5 rounded-xl text-xs font-bold transition-all hover:bg-white/10 text-white/80 text-center truncate";
-                    btn.style.color = '';
+                if (btn) {
+                    if (m === currentMode) {
+                        btn.className = "py-2.5 rounded-xl text-xs font-bold transition-all bg-white shadow-lg text-center truncate";
+                        btn.style.color = activeColor;
+                    } else {
+                        btn.className = "py-2.5 rounded-xl text-xs font-bold transition-all hover:bg-white/10 text-white/80 text-center truncate";
+                        btn.style.color = '';
+                    }
                 }
             });
 
             ['none', 'rain'].forEach(type => {
                 const btn = document.getElementById(`ambient-${type}`);
-                if (type === selectedAmbientMode) {
-                    btn.className = "py-2.5 bg-white text-xs font-bold rounded-xl border border-white/20 transition-all shadow-md";
-                    btn.style.color = activeColor;
-                } else {
-                    btn.className = "py-2.5 bg-black/20 text-white text-xs font-bold rounded-xl border border-white/10 hover:bg-black/40 transition-all";
-                    btn.style.color = '';
+                if (btn) {
+                    if (type === selectedAmbientMode) {
+                        btn.className = "py-2.5 bg-white text-xs font-bold rounded-xl border border-white/20 transition-all shadow-md";
+                        btn.style.color = activeColor;
+                    } else {
+                        btn.className = "py-2.5 bg-black/20 text-white text-xs font-bold rounded-xl border border-white/10 hover:bg-black/40 transition-all";
+                        btn.style.color = '';
+                    }
                 }
             });
         }
@@ -250,9 +253,9 @@
             applyGradient(modes[currentMode].c1, modes[currentMode].c2);
 
             if (type === 'rain') {
-                rainAudio.play().then(() => {
-                    if (timerId === null) rainAudio.pause();
-                }).catch(e => console.log(e));
+                if (timerId !== null) {
+                    rainAudio.play().catch(e => console.log(e));
+                }
             } else {
                 rainAudio.pause();
             }
@@ -272,7 +275,7 @@
             }
         }
 
-        function toggleTimer() {
+        window.toggleTimer = function() {
             if (timerId === null) {
                 startBtn.textContent = 'Pause Session';
                 timerContainer.classList.add('timer-running');
@@ -311,7 +314,7 @@
             }
         }
 
-        function resetTimer() {
+        window.resetTimer = function() {
             clearInterval(timerId);
             timerId = null;
             timeLeft = modes[currentMode].time;
